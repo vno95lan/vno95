@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VNO95 - SOULEDE RESEAU LAN</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,sans-serif;background:#0d0f14;color:#e2e8f0;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;text-align:center;}
+.box{max-width:480px;width:100%;}
+.icon{font-size:80px;margin-bottom:20px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+h1{font-size:26px;color:#4ade80;font-weight:700;margin-bottom:6px;}
+h2{font-size:13px;color:#64748b;font-weight:400;margin-bottom:28px;letter-spacing:1px;}
+.card{background:#13161e;border:1px solid #252a38;border-radius:16px;padding:24px;margin-bottom:20px;}
+.card h3{font-size:17px;margin-bottom:12px;}
+.card.offline h3{color:#f87171;}
+.card.online h3{color:#4ade80;}
+.card p{font-size:13px;color:#94a3b8;line-height:1.7;margin-bottom:14px;}
+.status{display:flex;align-items:center;justify-content:center;gap:10px;background:#1a1e2a;border-radius:10px;padding:11px 18px;margin-bottom:14px;}
+.dot{width:12px;height:12px;border-radius:50%;}
+.dot.red{background:#f87171;animation:blink 1s infinite;}
+.dot.green{background:#4ade80;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.st{font-size:13px;font-weight:600;}
+.st.red{color:#f87171;}
+.st.green{color:#4ade80;}
+.btn{width:100%;padding:13px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;}
+.btn.green{background:#4ade80;color:#0d0f14;}
+.btn.grey{background:#1a1e2a;color:#94a3b8;border:1px solid #252a38;}
+.btn:active{opacity:.85;}
+.info{font-size:11px;color:#475569;margin-top:10px;}
+.footer{font-size:11px;color:#334155;margin-top:20px;}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="icon">&#128225;</div>
+  <h1>VNO95</h1>
+  <h2>SOULEDE RESEAU LAN</h2>
+
+  <div class="card offline" id="card-offline">
+    <h3>&#9888; Serveur temporairement indisponible</h3>
+    <p>
+      Nous sommes desoles pour la gene occasionnee.<br><br>
+      Le serveur est actuellement hors ligne ou en maintenance.
+      Notre equipe travaille pour retablir le service dans les plus brefs delais.
+      Merci de votre patience.
+    </p>
+    <div class="status">
+      <div class="dot red" id="dot"></div>
+      <span class="st red" id="st">Serveur hors ligne</span>
+    </div>
+    <p style="font-size:12px;color:#64748b;">
+      Verification automatique toutes les 15 secondes.
+    </p>
+    <button class="btn grey" onclick="checkNow()">&#8635; Verifier maintenant</button>
+    <p class="info">Prochaine verification dans <span id="cd">15</span>s</p>
+  </div>
+
+  <div class="footer">VNO95 - SOULEDE RESEAU LAN &copy; 2025</div>
+</div>
+
+<script>
+// ============================================
+// REMPLACE ICI PAR TON URL NGROK OU IP LOCALE
+// Ex: 'http://192.168.1.100/mokolo/'
+// Ex: 'https://abc123.ngrok.io/'
+// ============================================
+var SERVER = 'http://192.168.1.100/mokolo/';
+
+var count = 15;
+var checking = false;
+
+var timer = setInterval(function(){
+  if(checking) return;
+  count--;
+  document.getElementById('cd').textContent = count;
+  if(count <= 0){ count = 15; checkServer(); }
+}, 1000);
+
+function checkServer(){
+  if(checking) return;
+  checking = true;
+  document.getElementById('cd').textContent = '...';
+  document.getElementById('st').textContent = 'Verification...';
+
+  fetch(SERVER, {mode:'no-cors', cache:'no-cache'})
+    .then(function(){
+      // Serveur en ligne - rediriger
+      document.getElementById('dot').className = 'dot green';
+      document.getElementById('st').className = 'st green';
+      document.getElementById('st').textContent = 'Serveur en ligne ! Redirection...';
+      setTimeout(function(){ window.location.href = SERVER; }, 1500);
+    })
+    .catch(function(){
+      // Toujours hors ligne
+      document.getElementById('dot').className = 'dot red';
+      document.getElementById('st').className = 'st red';
+      document.getElementById('st').textContent = 'Serveur hors ligne';
+      count = 15;
+      checking = false;
+    });
+}
+
+function checkNow(){
+  count = 15;
+  checkServer();
+}
+
+// Verifier au chargement
+checkServer();
+</script>
+</body>
+</html>
